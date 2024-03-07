@@ -16,7 +16,6 @@ namespace PascalTriangle
             for (int i = 0; i < n; i++)
             {
                 List<int> row = new List<int> { 1 };
-
                 if (i == 0)
                 {
                     triangle.Add(row);
@@ -31,11 +30,9 @@ namespace PascalTriangle
                         row.Add(nextValue);
                     }
                 }
-
                 row.Add(1);
                 triangle.Add(row);
             }
-
             return triangle;
         }
     }
