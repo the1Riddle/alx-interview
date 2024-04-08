@@ -1,3 +1,3 @@
 # Interview Quizzes
 
-<!-- just for commenting -->
+<!-- just for comments -->
