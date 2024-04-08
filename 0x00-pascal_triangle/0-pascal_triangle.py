@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" pascal triangle
+""" pascal triangle written in python
 """
 
 
