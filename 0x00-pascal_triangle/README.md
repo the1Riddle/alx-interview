@@ -51,3 +51,6 @@
 
 Consider the time and space complexity of different approaches to generating Pascal’s Triangle.
 Evaluate and apply optimizations to improve the performance of the solution.
+
+
+<!--the readme file for the description -->
