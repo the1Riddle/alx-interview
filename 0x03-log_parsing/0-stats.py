@@ -61,5 +61,6 @@ def log_passing():
                 print("{}: {}".format(key, status_code[key]))
         raise
 
+
 if __name__ == '__main__':
     log_passing()
