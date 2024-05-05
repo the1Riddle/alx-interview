@@ -1,71 +1,89 @@
 #!/usr/bin/python3
 """
-A script that reads stdin line by line then computes the metrics
+    A script that reads in stdin line by line and then computes the metrics
 """
 import sys
 import re
 
 
-def format_check(data):
+def extract_input(input_line):
     """
-    Checks for the input format using regex,
-    skips the line if it does not match.
+    checks for the input pattern and extracts the relevant information
+    from a line of an HTTP request log.
     """
-    pattern = re.compile(
-        r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - "
-        r"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6})\] "
-        r'"GET \/projects\/260 HTTP\/1\.1" (\d{3}) (\d+)'
+    fp = (
+        r'\s*(?P<ip>\S+)\s*',
+        r'\s*\[(?P<date>\d+-\d+-\d+ \d+:\d+:\d+\.\d+)\]',
+        r'\s*"(?P<request>[^"]*)"\s*',
+        r'\s*(?P<status_code>\S+)',
+        r'\s*(?P<file_size>\d+)'
     )
-    return bool(pattern.match(data))
+    info = {
+        'status_code': 0,
+        'file_size': 0,
+    }
+    log_fmt = '{}\\-{}{}{}{}\\s*'.format(fp[0], fp[1], fp[2], fp[3], fp[4])
+    resp_match = re.fullmatch(log_fmt, input_line)
+    if resp_match is not None:
+        status_code = resp_match.group('status_code')
+        file_size = int(resp_match.group('file_size'))
+        info['status_code'] = status_code
+        info['file_size'] = file_size
+    return info
 
 
-def count_status_codes(data):
+def print_statistics(total_file_size, status_codes_stats):
     """
-    Counts the occurrence of status codes in the provided data
+    Prints the accumulated statistics of the HTTP request log.
     """
-    status_code = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
-    for line in data:
-        status = int(line.split()[-2])
-        if status in status_code:
-            status_code[status] += 1
-    return status_code
+    print('File size: {:d}'.format(total_file_size), flush=True)
+    for status_code in sorted(status_codes_stats.keys()):
+        num = status_codes_stats.get(status_code, 0)
+        if num > 0:
+            print('{:s}: {:d}'.format(status_code, num), flush=True)
+
+
+def update_metrics(line, total_file_size, status_codes_stats):
+    """
+    Updates metrics from a given HTTP request log.
+    """
+    line_info = extract_input(line)
+    status_code = line_info.get('status_code', '0')
+    if status_code in status_codes_stats.keys():
+        status_codes_stats[status_code] += 1
+    return total_file_size + line_info['file_size']
 
 
 def log_passing():
     """
-    Reads stdin line by line and computes metrics
+    Reads stdin line by line and computes metrics.
     """
-    total_size = 0
-    counter = 0
-    data = []
+    status_codes_stats = {
+        '200': 0,
+        '301': 0,
+        '400': 0,
+        '401': 0,
+        '403': 0,
+        '404': 0,
+        '405': 0,
+        '500': 0
+    }
+    total_file_size = 0
+    line_num = 0
 
     try:
         for line in sys.stdin:
-            if not format_check(line):
-                continue
-            counter += 1
-            data.append(line)
-            total_size += int(line.split()[-1])
-
-            if counter == 10:
-                print("File size: {}".format(total_size))
-                status_code_counts = count_status_codes(data)
-                for key in sorted(status_code_counts.keys()):
-                    if status_code_counts[key] != 0:
-                        print("{}: {}".format(key, status_code_counts[key]))
-                counter = 0
-                data = []
-
+            line_num += 1
+            total_file_size = update_metrics(
+                line.strip(),
+                total_file_size,
+                status_codes_stats,
+            )
+            if line_num % 10 == 0:
+                print_statistics(total_file_size, status_codes_stats)
     except KeyboardInterrupt:
-        pass
-
-    finally:
-        print("File size: {}".format(total_size))
-        status_code_counts = count_status_codes(data)
-        for key in sorted(status_code_counts.keys()):
-            if status_code_counts[key] != 0:
-                print("{}: {}".format(key, status_code_counts[key]))
+        print_statistics(total_file_size, status_codes_stats)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     log_passing()
