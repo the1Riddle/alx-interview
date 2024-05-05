@@ -4,10 +4,9 @@ A script that reads stdin line by line then computes the metrics
 """
 import sys
 import re
-import signal
 
 
-def format_check(line):
+def format_check(data):
     """
     Checks for the input format using regex
     skips the line if it does not match.
@@ -17,12 +16,12 @@ def format_check(line):
         r"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6})\] "
         r'"GET \/projects\/260 HTTP\/1\.1" (\d{3}) (\d+)'
     )
-    return bool(pattern.match(line))
+    return bool(pattern.match(data))
 
 
-def count_status_codes(lines):
+def count_status_codes(data):
     """
-    Counts the occurrence of status codes in the provided lines
+    Counts the occurrence of status codes in the provided data
     """
     status_code = {
         200: 0,
@@ -34,24 +33,11 @@ def count_status_codes(lines):
         405: 0,
         500: 0
     }
-    for line in lines:
+    for line in data:
         status = int(line.split()[-2])
         if status in status_code:
             status_code[status] += 1
     return status_code
-
-
-def print_stats(total_size, status_code_counts):
-    """Function to print the statistics."""
-    print("File size: {}".format(total_size))
-    for key in sorted(status_code_counts.keys()):
-        if status_code_counts[key] != 0:
-            print("{}: {}".format(key, status_code_counts[key]))
-
-
-def signal_handler(signum, frame):
-    """Signal handler for printing the stats before exiting."""
-    raise KeyboardInterrupt
 
 
 def log_passing():
@@ -59,32 +45,35 @@ def log_passing():
     Reads stdin line by line and computes metrics
     """
     total_size = 0
-    lines = []
-
-    # Register the signal handler for SIGINT (CTRL + C)
-    signal.signal(signal.SIGINT, signal_handler)
+    counter = 0
+    data = []
 
     try:
         for line in sys.stdin:
             if not format_check(line):
                 continue
-
+            counter += 1
+            data.append(line)
             total_size += int(line.split()[-1])
-            lines.append(line)
 
-            if len(lines) == 10:
-                status_code_counts = count_status_codes(lines)
-                print_stats(total_size, status_code_counts)
-                total_size = 0
-                lines = []
+            if counter == 10:
+                print("File size: {}".format(total_size))
+                status_code_counts = count_status_codes(data)
+                for key in sorted(status_code_counts.keys()):
+                    if status_code_counts[key] != 0:
+                        print("{}: {}".format(key, status_code_counts[key]))
+                counter = 0
+                data = []
 
     except KeyboardInterrupt:
         pass
 
     finally:
-        if lines:
-            status_code_counts = count_status_codes(lines)
-            print_stats(total_size, status_code_counts)
+        print("File size: {}".format(total_size))
+        status_code_counts = count_status_codes(data)
+        for key in sorted(status_code_counts.keys()):
+            if status_code_counts[key] != 0:
+                print("{}: {}".format(key, status_code_counts[key]))
 
 
 if __name__ == "__main__":
