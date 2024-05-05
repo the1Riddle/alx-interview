@@ -6,6 +6,7 @@ import sys
 import re
 import signal
 
+
 def format_check(line):
     """
     Checks for the input format using regex
@@ -17,6 +18,7 @@ def format_check(line):
         r'"GET \/projects\/260 HTTP\/1\.1" (\d{3}) (\d+)'
     )
     return bool(pattern.match(line))
+
 
 def count_status_codes(lines):
     """
@@ -38,6 +40,7 @@ def count_status_codes(lines):
             status_code[status] += 1
     return status_code
 
+
 def print_stats(total_size, status_code_counts):
     """Function to print the statistics."""
     print("File size: {}".format(total_size))
@@ -45,9 +48,11 @@ def print_stats(total_size, status_code_counts):
         if status_code_counts[key] != 0:
             print("{}: {}".format(key, status_code_counts[key]))
 
+
 def signal_handler(signum, frame):
     """Signal handler for printing the stats before exiting."""
     raise KeyboardInterrupt
+
 
 def log_passing():
     """
@@ -80,6 +85,7 @@ def log_passing():
         if lines:
             status_code_counts = count_status_codes(lines)
             print_stats(total_size, status_code_counts)
+
 
 if __name__ == "__main__":
     log_passing()
