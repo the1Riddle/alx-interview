@@ -23,16 +23,7 @@ def count_status_codes(data):
     """
     Counts the occurrence of status codes in the provided data
     """
-    status_code = {
-        200: 0,
-        301: 0,
-        400: 0,
-        401: 0,
-        403: 0,
-        404: 0,
-        405: 0,
-        500: 0
-    }
+    status_code = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
     for line in data:
         status = int(line.split()[-2])
         if status in status_code:
