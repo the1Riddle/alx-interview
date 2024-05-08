@@ -11,18 +11,19 @@ def validUTF8(data):
     """
     n_bytes = 0
     for num in data:
-        bin_rep = format(num, '#010b')[-8:]
         if n_bytes == 0:
-            for bit in bin_rep:
-                if bit == '0':
-                    break
-                n_bytes += 1
-            if n_bytes == 0:
+            if (num >> 7) == 0b0:
                 continue
-            if n_bytes == 1 or n_bytes > 4:
+            elif (num >> 5) == 0b110:
+                n_bytes = 1
+            elif (num >> 4) == 0b1110:
+                n_bytes = 2
+            elif (num >> 3) == 0b11110:
+                n_bytes = 3
+            else:
                 return False
         else:
-            if not (bin_rep[0] == '1' and bin_rep[1] == '0'):
+            if (num >> 6) != 0b10:
                 return False
-        n_bytes -= 1
+            n_bytes -= 1
     return True
