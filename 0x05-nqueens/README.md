@@ -9,6 +9,6 @@ The N queens puzzle involves placing N non-attacking queens on an N×N chessboar
    - If N is smaller than 4, `N must be at least 4` is printed, followed by a new line, and exit with the status 1
 * The program prints every possible solution to the problem
    - One solution per line
-   - Format: see [example](#22)
+   - Format: see [example](https://github.com/the1Riddle/alx-interview/pull/22)
 
 Read: [Queen](https://intranet.alxswe.com/rltoken/ghWqI1wvx6g-Ul7nrufMKA), [Backtracking](https://intranet.alxswe.com/rltoken/-hgZbgRFkwmxaKnLnCIuEQ)
