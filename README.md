@@ -1,3 +1,3 @@
-# Interview Quizzes
+# Interview Solutions
 
 <!-- just for comments -->
