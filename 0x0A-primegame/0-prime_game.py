@@ -4,7 +4,7 @@ Prime game module
 """
 
 
-def is_winner(x, nums):
+def isWinner(x, nums):
     """
     a function to determine the winner of the prime game.
     """
