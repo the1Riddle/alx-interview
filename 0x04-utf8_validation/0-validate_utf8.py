@@ -6,9 +6,13 @@
 
 
 def validUTF8(data):
-    """
-    the method to implement the functionality
-    """
+    if not isinstance(data, list):
+        return False
+    
+    for num in data:
+        if not isinstance(num, int) or num < 0 or num > 255:
+            return False
+        
     n_bytes = 0
     for num in data:
         if n_bytes == 0:
@@ -26,4 +30,5 @@ def validUTF8(data):
             if (num >> 6) != 0b10:
                 return False
             n_bytes -= 1
+    
     return n_bytes == 0
