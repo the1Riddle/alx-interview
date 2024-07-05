@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 """
-A program that solves the n queens challenge.
+A program that solves the N-queens challenge.
 """
 import sys
+from typing import List
 
-
-def is_safe(board: list, row: int, col: int) -> bool:
+def is_safe(board: List[int], row: int, col: int) -> bool:
     """
     Check if it's safe to place a queen at position (row, col) on the board.
     """
@@ -16,8 +16,7 @@ def is_safe(board: list, row: int, col: int) -> bool:
             return False
     return True
 
-
-def find_aplace(board, row, n, solutions):
+def solve_nqueens(board: List[int], row: int, n: int, solutions: List[List[int]]):
     """
     Recursively find a safe place for a queen in the current row.
     """
@@ -28,44 +27,43 @@ def find_aplace(board, row, n, solutions):
     for col in range(n):
         if is_safe(board, row, col):
             board[row] = col
-            find_aplace(board, row + 1, n, solutions)
+            solve_nqueens(board, row + 1, n, solutions)
             board[row] = -1
 
-
-def nqueens(n: int):
+def nqueens(n: int) -> List[List[int]]:
     """
-    Solve the n queens problem for a given board size.
+    Solve the N-queens problem for a given board size.
     """
     board = [-1] * n
     solutions = []
-    find_aplace(board, 0, n, solutions)
+    solve_nqueens(board, 0, n, solutions)
     return solutions
 
-
-def print_solutions(solutions):
+def print_solutions(solutions: List[List[int]]):
     """
     Print all solutions to the N-queens problem.
     """
-    for sol in solutions:
-        result = [[col, row] for row, col in enumerate(sol)]
+    for solution in solutions:
+        result = [[col, row] for row, col in enumerate(solution)]
         print(result)
 
-
-if __name__ == "__main__":
+def main():
     if len(sys.argv) != 2:
-        print("Usage: nqueens N\n")
+        print("Usage: nqueens N")
         sys.exit(1)
 
     try:
         n = int(sys.argv[1])
     except ValueError:
-        print("N must be a number\n")
+        print("N must be a number")
         sys.exit(1)
 
     if n < 4:
-        print("N must be at least 4\n")
+        print("N must be at least 4")
         sys.exit(1)
 
-    # prints the results
-    solution = nqueens(n)
-    print_solutions(solution)
+    solutions = nqueens(n)
+    print_solutions(solutions)
+
+if __name__ == "__main__":
+    main()
