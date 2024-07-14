@@ -1,25 +1,54 @@
 #!/usr/bin/node
-const request = require('request');
-const API_URL = 'https://swapi-api.hbtn.io/api';
 
-if (process.argv.length > 2) {
-  request(`${API_URL}/films/${process.argv[2]}/`, (err, _, body) => {
+const request = require("request");
+
+const movieURL = `https://swapi-api.hbtn.io/api/films/${process.argv[2]}`;
+
+const fetchMovie = (url, callback) => {
+  request(url, (err, res, body) => {
     if (err) {
-      console.log(err);
+      console.error(`Error fetching movie data: ${err.message}`);
+      process.exit(1);
     }
-    const charactersURL = JSON.parse(body).characters;
-    const charactersName = charactersURL.map(
-      url => new Promise((resolve, reject) => {
-        request(url, (promiseErr, __, charactersReqBody) => {
-          if (promiseErr) {
-            reject(promiseErr);
-          }
-          resolve(JSON.parse(charactersReqBody).name);
-        });
-      }));
-
-    Promise.all(charactersName)
-      .then(names => console.log(names.join('\n')))
-      .catch(allErr => console.log(allErr));
+    if (res.statusCode !== 200) {
+      console.error(
+        `Failed to fetch movie data. Status code: ${res.statusCode}`,
+      );
+      process.exit(1);
+    }
+    callback(JSON.parse(body));
   });
+};
+
+const fetchCharacter = (url, callback) => {
+  request(url, (err, res, body) => {
+    if (err) {
+      console.error(`Error fetching character data: ${err.message}`);
+      process.exit(1);
+    }
+    if (res.statusCode !== 200) {
+      console.error(
+        `Failed to fetch character data. Status code: ${res.statusCode}`,
+      );
+      process.exit(1);
+    }
+    callback(JSON.parse(body));
+  });
+};
+
+const logCharacters = (characters, index) => {
+  if (index === characters.length) return;
+  fetchCharacter(characters[index], (character) => {
+    console.log(character.name);
+    logCharacters(characters, index + 1);
+  });
+};
+
+if (process.argv.length < 3) {
+  console.error("Usage: ./script <movie_id>");
+  process.exit(1);
 }
+
+fetchMovie(movieURL, (movie) => {
+  logCharacters(movie.characters, 0);
+});
